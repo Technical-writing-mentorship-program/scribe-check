@@ -9,7 +9,7 @@ import IssuesPanel from "@/components/editor/IssuesPanel";
 import PreviewPanel from "@/components/editor/PreviewPanel";
 import StyleGuideSelector from "@/components/editor/StyleGuideSelector";
 import { LintIssue, StyleGuide } from "@/types/linting";
-import { lintMarkdown } from "@/utils/mockLinter";
+import { lintMarkdown } from "@/utils/realLinter";
 
 const SAMPLE_TEXT = `# Getting Started with MarkdownLint
 
@@ -36,12 +36,24 @@ const Index = () => {
 
   // Lint on content or style guide change
   useEffect(() => {
-    if (content.trim()) {
-      const newIssues = lintMarkdown(content, styleGuide);
-      setIssues(newIssues);
-    } else {
-      setIssues([]);
-    }
+    let isCancelled = false;
+    
+    const runLinting = async () => {
+      if (content.trim()) {
+        const newIssues = await lintMarkdown(content, styleGuide);
+        if (!isCancelled) {
+          setIssues(newIssues);
+        }
+      } else {
+        setIssues([]);
+      }
+    };
+
+    runLinting();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [content, styleGuide]);
 
   const handleFileUpload = (file: File) => {
