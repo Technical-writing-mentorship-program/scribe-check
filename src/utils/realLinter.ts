@@ -22,74 +22,78 @@ const mapSeverity = (fatal?: boolean | null, message?: string): 'error' | 'warni
 
 // Create processor for Google style guide (emphasis on clarity and simplicity)
 const createGoogleProcessor = () => {
+  const retextProcessor = unified()
+    .use(retextEnglish)
+    .use(retextPassive)
+    .use(retextSimplify, { 
+      ignore: ['advanced', 'function', 'interface', 'method'] // Keep technical terms
+    })
+    .use(retextReadability, { age: 14 }) // Google emphasizes readability
+    .use(retextEquality, {
+      ignore: ['master', 'slave'] // Allow technical terms in context
+    });
+
   return unified()
     .use(remarkParse)
     .use(remarkLint)
     .use(remarkPresetLintConsistent)
     .use(remarkPresetLintRecommended)
-    .use(remarkRetext, unified()
-      .use(retextEnglish)
-      .use(retextPassive)
-      .use(retextSimplify, { 
-        ignore: ['advanced', 'function', 'interface', 'method'] // Keep technical terms
-      })
-      .use(retextReadability, { age: 14 }) // Google emphasizes readability
-      .use(retextEquality, {
-        ignore: ['master', 'slave'] // Allow technical terms in context
-      })
-    );
+    .use(remarkRetext, retextProcessor);
 };
 
 // Create processor for Microsoft style guide (technical writing focus)
 const createMicrosoftProcessor = () => {
+  const retextProcessor = unified()
+    .use(retextEnglish)
+    .use(retextPassive)
+    .use(retextSimplify, {
+      ignore: ['function', 'interface', 'implement', 'utilize', 'component']
+    })
+    .use(retextReadability, { age: 16 })
+    .use(retextEquality);
+
   return unified()
     .use(remarkParse)
     .use(remarkLint)
     .use(remarkPresetLintConsistent)
     .use(remarkPresetLintRecommended)
-    .use(remarkRetext, unified()
-      .use(retextEnglish)
-      .use(retextPassive)
-      .use(retextSimplify, {
-        ignore: ['function', 'interface', 'implement', 'utilize', 'component']
-      })
-      .use(retextReadability, { age: 16 })
-      .use(retextEquality)
-    );
+    .use(remarkRetext, retextProcessor);
 };
 
 // Create processor for Red Hat style guide (open source documentation)
 const createRedHatProcessor = () => {
+  const retextProcessor = unified()
+    .use(retextEnglish)
+    .use(retextPassive)
+    .use(retextSimplify, {
+      ignore: ['interface', 'implement', 'function', 'modify']
+    })
+    .use(retextReadability, { age: 15 })
+    .use(retextEquality);
+
   return unified()
     .use(remarkParse)
     .use(remarkLint)
     .use(remarkPresetLintConsistent)
     .use(remarkPresetLintMarkdownStyleGuide)
-    .use(remarkRetext, unified()
-      .use(retextEnglish)
-      .use(retextPassive)
-      .use(retextSimplify, {
-        ignore: ['interface', 'implement', 'function', 'modify']
-      })
-      .use(retextReadability, { age: 15 })
-      .use(retextEquality)
-    );
+    .use(remarkRetext, retextProcessor);
 };
 
 // Create processor for custom/general style guide
 const createCustomProcessor = () => {
+  const retextProcessor = unified()
+    .use(retextEnglish)
+    .use(retextPassive)
+    .use(retextSimplify)
+    .use(retextReadability, { age: 14 })
+    .use(retextEquality);
+
   return unified()
     .use(remarkParse)
     .use(remarkLint)
     .use(remarkPresetLintConsistent)
     .use(remarkPresetLintRecommended)
-    .use(remarkRetext, unified()
-      .use(retextEnglish)
-      .use(retextPassive)
-      .use(retextSimplify)
-      .use(retextReadability, { age: 14 })
-      .use(retextEquality)
-    );
+    .use(remarkRetext, retextProcessor);
 };
 
 // Get the appropriate processor based on style guide
