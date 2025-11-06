@@ -140,7 +140,8 @@ export const lintMarkdown = async (text: string, styleGuide: StyleGuide): Promis
   const vfile = new VFile({ value: text, path: 'document.md' });
 
   try {
-    await processor.process(vfile);
+    const tree = processor.parse(vfile);
+    await processor.run(tree, vfile);
   } catch (error) {
     console.error('Linting error:', error);
   }
