@@ -18,22 +18,13 @@ interface MarkdownEditorProps {
 }
 
 const MAX_WORDS = 1500;
-const MAX_HEIGHT = 800; // Maximum height in pixels
 
 const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEditorProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const lineNumbersRef = useRef<HTMLDivElement>(null);
+  const [scrollTop, setScrollTop] = useState(0);
   const { toast } = useToast();
-
-  // Auto-resize textarea based on content
-  useEffect(() => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = 'auto';
-      const newHeight = Math.min(textarea.scrollHeight, MAX_HEIGHT);
-      textarea.style.height = `${newHeight}px`;
-    }
-  }, [content]);
 
   const getWordCount = (text: string) => {
     return text.trim().split(/\s+/).filter(word => word.length > 0).length;
@@ -41,6 +32,15 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
 
   const wordCount = getWordCount(content);
   const isOverLimit = wordCount > MAX_WORDS;
+
+  // Sync scroll between textarea and line numbers
+  const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    setScrollTop(scrollTop);
+    if (lineNumbersRef.current) {
+      lineNumbersRef.current.scrollTop = scrollTop;
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -105,9 +105,10 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
           {/* Editor with highlight overlay */}
           <div className="flex-1 relative">
             {/* Highlight overlay with badges - behind textarea */}
-            <div className="absolute inset-0 p-4 pointer-events-none z-0">
+            <div className="absolute inset-0 p-4 pointer-events-none overflow-hidden z-0">
               <div 
                 className="font-mono text-sm leading-relaxed whitespace-pre-wrap break-words"
+                style={{ transform: `translateY(-${scrollTop}px)` }}
               >
                 {lines.map((line, idx) => {
                   const lineIssues = getLineIssues(idx + 1);
@@ -179,8 +180,8 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
                 ref={textareaRef}
                 value={content}
                 onChange={(e) => handleContentChange(e.target.value)}
-                className="w-full bg-transparent text-editor-fg resize-none focus:outline-none leading-relaxed font-mono text-sm pl-10 transition-[height] duration-200 ease-in-out overflow-hidden"
-                style={{ minHeight: '400px' }}
+                onScroll={handleScroll}
+                className="w-full min-h-[400px] bg-transparent text-editor-fg resize-none focus:outline-none leading-relaxed font-mono text-sm pl-10"
                 placeholder="Paste your Markdown here or upload a file..."
                 spellCheck={false}
               />
