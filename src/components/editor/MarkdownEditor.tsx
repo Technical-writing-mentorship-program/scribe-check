@@ -8,6 +8,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 
 interface MarkdownEditorProps {
   content: string;
@@ -16,11 +17,21 @@ interface MarkdownEditorProps {
   onFileUpload: (file: File) => void;
 }
 
+const MAX_WORDS = 1500;
+
 const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEditorProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
+  const { toast } = useToast();
+
+  const getWordCount = (text: string) => {
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
+
+  const wordCount = getWordCount(content);
+  const isOverLimit = wordCount > MAX_WORDS;
 
   // Sync scroll between textarea and line numbers
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
@@ -38,6 +49,21 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
     }
   };
 
+  const handleContentChange = (newContent: string) => {
+    const newWordCount = getWordCount(newContent);
+    
+    if (newWordCount > MAX_WORDS) {
+      toast({
+        title: "Word limit exceeded",
+        description: `Maximum ${MAX_WORDS} words allowed. Current: ${newWordCount} words.`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    onChange(newContent);
+  };
+
   const getLineIssues = (lineNumber: number) => {
     return issues.filter((issue) => issue.line === lineNumber);
   };
@@ -48,7 +74,12 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
     <TooltipProvider>
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between p-4 border-b border-editor-border bg-editor-bg">
-        <h2 className="text-sm font-semibold text-editor-fg">Markdown Editor</h2>
+        <div className="flex items-center gap-4">
+          <h2 className="text-sm font-semibold text-editor-fg">Markdown Editor</h2>
+          <span className={`text-xs ${isOverLimit ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>
+            {wordCount} / {MAX_WORDS} words
+          </span>
+        </div>
         <div className="flex items-center space-x-2">
           <input
             ref={fileInputRef}
@@ -69,10 +100,10 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden bg-editor-bg">
-        <div className="flex h-full">
+      <div className="flex-1 bg-editor-bg">
+        <div className="flex">
           {/* Editor with highlight overlay */}
-          <div className="flex-1 overflow-auto relative">
+          <div className="flex-1 relative">
             {/* Highlight overlay with badges - behind textarea */}
             <div className="absolute inset-0 p-4 pointer-events-none overflow-hidden z-0">
               <div 
@@ -148,9 +179,9 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
               <textarea
                 ref={textareaRef}
                 value={content}
-                onChange={(e) => onChange(e.target.value)}
+                onChange={(e) => handleContentChange(e.target.value)}
                 onScroll={handleScroll}
-                className="w-full min-h-[500px] bg-transparent text-editor-fg resize-none focus:outline-none leading-relaxed font-mono text-sm pl-10"
+                className="w-full min-h-[400px] bg-transparent text-editor-fg resize-none focus:outline-none leading-relaxed font-mono text-sm pl-10"
                 placeholder="Paste your Markdown here or upload a file..."
                 spellCheck={false}
               />
