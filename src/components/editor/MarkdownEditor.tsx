@@ -64,45 +64,6 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
 
       <div className="flex-1 overflow-hidden bg-editor-bg">
         <div className="flex h-full">
-          {/* Line numbers */}
-          <div 
-            ref={lineNumbersRef}
-            className="overflow-hidden bg-editor-bg/50 border-r border-editor-border px-3 py-4"
-            style={{ userSelect: 'none' }}
-          >
-            <div className="font-mono text-sm leading-relaxed text-muted-foreground">
-              {lines.map((_, idx) => {
-                const lineIssues = getLineIssues(idx + 1);
-                const hasIssues = lineIssues.length > 0;
-                
-                let issueColor = "";
-                if (hasIssues) {
-                  const highestLevel: IssueLevel = lineIssues.reduce<IssueLevel>((prev, curr) => {
-                    if (curr.level === "error") return "error";
-                    if (prev === "error") return prev;
-                    if (curr.level === "warning") return "warning";
-                    return prev;
-                  }, "info");
-                  
-                  issueColor = highestLevel === "error" 
-                    ? "text-issue-error" 
-                    : highestLevel === "warning" 
-                    ? "text-issue-warning" 
-                    : "text-issue-info";
-                }
-                
-                return (
-                  <div
-                    key={idx}
-                    className={`text-right pr-2 ${hasIssues ? `font-semibold ${issueColor}` : ''}`}
-                  >
-                    {idx + 1}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          
           {/* Editor with highlight overlay */}
           <div className="flex-1 overflow-auto relative">
             {/* Highlight overlay with badges - behind textarea */}
@@ -132,10 +93,7 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
                   }
                   
                   return (
-                    <div
-                      key={idx}
-                      className={hasIssues ? 'bg-[hsl(var(--issue-highlight))] border-l-4 border-[hsl(var(--issue-highlight-border))] pl-2 py-0.5' : ''}
-                    >
+                    <div key={idx}>
                       {hasIssues && (
                         <span className={`
                           inline-flex items-center justify-center 
