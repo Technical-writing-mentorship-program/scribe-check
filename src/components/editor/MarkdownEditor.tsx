@@ -2,6 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { LintIssue, IssueLevel } from "@/types/linting";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface MarkdownEditorProps {
   content: string;
@@ -39,8 +45,9 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
   const lines = content.split("\n");
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between p-4 border-b border-editor-border bg-editor-bg">
+    <TooltipProvider>
+      <div className="flex flex-col h-full">
+        <div className="flex items-center justify-between p-4 border-b border-editor-border bg-editor-bg">
         <h2 className="text-sm font-semibold text-editor-fg">Markdown Editor</h2>
         <div className="flex items-center space-x-2">
           <input
@@ -93,17 +100,39 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
                   }
                   
                   return (
-                    <div key={idx}>
+                    <div key={idx} className="relative">
                       {hasIssues && (
-                        <span className={`
-                          inline-flex items-center justify-center 
-                          w-6 h-6 rounded-full mr-2
-                          bg-[hsl(var(--issue-highlight-border))]
-                          text-xs font-bold
-                          ${issueColor}
-                        `}>
-                          {idx + 1}
-                        </span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className={`
+                              inline-flex items-center justify-center 
+                              w-6 h-6 rounded-full mr-3
+                              bg-[hsl(var(--issue-highlight-border))]
+                              text-xs font-bold
+                              cursor-help
+                              ${issueColor}
+                            `}>
+                              {idx + 1}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-md">
+                            <div className="space-y-2">
+                              {lineIssues.map((issue) => (
+                                <div key={issue.id} className="text-sm">
+                                  <p className="font-semibold">{issue.message}</p>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    Rule: {issue.rule}
+                                  </p>
+                                  {issue.suggestion && (
+                                    <p className="text-xs mt-1">
+                                      <span className="font-medium">Suggestion:</span> {issue.suggestion}
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
                       )}
                       <span className={hasIssues ? 'opacity-30' : 'opacity-0'}>
                         {line || ' '}
@@ -129,7 +158,8 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </TooltipProvider>
   );
 };
 
