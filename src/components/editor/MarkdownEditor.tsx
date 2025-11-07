@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { LintIssue, IssueLevel } from "@/types/linting";
-import { Upload } from "lucide-react";
+import { Upload, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -8,7 +8,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
+import { calculateReadabilityScore, getReadabilityLabel } from "@/utils/readability";
 
 interface MarkdownEditorProps {
   content: string;
@@ -32,6 +38,8 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
 
   const wordCount = getWordCount(content);
   const isOverLimit = wordCount > MAX_WORDS;
+  const readabilityScore = calculateReadabilityScore(content);
+  const readabilityInfo = getReadabilityLabel(readabilityScore);
 
   // Sync scroll between textarea and line numbers
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
@@ -79,6 +87,39 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
           <span className={`text-xs ${isOverLimit ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>
             {wordCount} / {MAX_WORDS} words
           </span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="flex items-center gap-1.5 text-xs hover:opacity-80 transition-opacity">
+                <span className="text-muted-foreground">Readability:</span>
+                <span className={`font-semibold ${readabilityInfo.color}`}>
+                  {readabilityScore}
+                </span>
+                <Info className="h-3.5 w-3.5 text-muted-foreground" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72">
+              <div className="space-y-3">
+                <div>
+                  <h4 className="font-semibold text-sm mb-1">
+                    Score: {readabilityScore} - {readabilityInfo.label}
+                  </h4>
+                  <p className="text-xs text-muted-foreground">{readabilityInfo.description}</p>
+                </div>
+                <div className="space-y-1.5 text-xs">
+                  <p className="font-medium">Score ranges:</p>
+                  <div className="space-y-0.5">
+                    <p><span className="font-medium">90-100:</span> Very easy</p>
+                    <p><span className="font-medium">80-89:</span> Easy</p>
+                    <p><span className="font-medium">70-79:</span> Fairly easy</p>
+                    <p><span className="font-medium">60-69:</span> Standard</p>
+                    <p><span className="font-medium">50-59:</span> Fairly difficult</p>
+                    <p><span className="font-medium">30-49:</span> Difficult</p>
+                    <p><span className="font-medium">0-29:</span> Very difficult</p>
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
         <div className="flex items-center space-x-2">
           <input
