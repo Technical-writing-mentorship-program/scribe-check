@@ -50,6 +50,9 @@ All colors MUST be HSL.
     --issue-warning: 38 92% 50%;
     --issue-info: 190 85% 45%;
 
+    --issue-highlight: 45 93% 90%;
+    --issue-highlight-border: 45 93% 70%;
+
     --radius: 0.75rem;
 
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -97,6 +100,9 @@ All colors MUST be HSL.
     --issue-error: 0 85% 55%;
     --issue-warning: 38 92% 50%;
     --issue-info: 190 85% 45%;
+
+    --issue-highlight: 45 30% 20%;
+    --issue-highlight-border: 45 60% 40%;
   }
 }
 
