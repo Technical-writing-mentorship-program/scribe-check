@@ -9,6 +9,16 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Card } from "@/components/ui/card";
 
 interface IssuesPanelProps {
@@ -18,6 +28,22 @@ interface IssuesPanelProps {
 }
 
 const IssuesPanel = ({ issues, onIssueClick, onFixIssue }: IssuesPanelProps) => {
+  const [showFixDialog, setShowFixDialog] = useState(false);
+  const [selectedIssue, setSelectedIssue] = useState<LintIssue | null>(null);
+
+  const handleFixClick = (issue: LintIssue, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedIssue(issue);
+    setShowFixDialog(true);
+  };
+
+  const handleFixConfirm = () => {
+    if (selectedIssue && onFixIssue) {
+      onFixIssue(selectedIssue.id);
+    }
+    setShowFixDialog(false);
+    setSelectedIssue(null);
+  };
   const [filters, setFilters] = useState<Set<IssueLevel>>(new Set(["error", "warning", "info"]));
 
   const toggleFilter = (level: IssueLevel) => {
@@ -157,10 +183,7 @@ const IssuesPanel = ({ issues, onIssueClick, onFixIssue }: IssuesPanelProps) => 
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onFixIssue(issue.id);
-                    }}
+                    onClick={(e) => handleFixClick(issue, e)}
                     className="shrink-0"
                   >
                     <Wand2 className="h-3.5 w-3.5 mr-1.5" />
@@ -172,6 +195,21 @@ const IssuesPanel = ({ issues, onIssueClick, onFixIssue }: IssuesPanelProps) => 
           ))
         )}
       </div>
+
+      <AlertDialog open={showFixDialog} onOpenChange={setShowFixDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Apply Fix?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will apply the suggested fix to line {selectedIssue?.line}. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleFixConfirm}>Apply Fix</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

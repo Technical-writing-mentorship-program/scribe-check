@@ -2,6 +2,16 @@ import { useState, useEffect } from "react";
 import { Download, Eye, FileText, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -37,6 +47,8 @@ const Index = () => {
   const [issues, setIssues] = useState<LintIssue[]>([]);
   const [activeTab, setActiveTab] = useState("issues");
   const [highlightedIssue, setHighlightedIssue] = useState<string | null>(null);
+  const [showAutoFixDialog, setShowAutoFixDialog] = useState(false);
+  const [autoFixCount, setAutoFixCount] = useState(0);
 
   // Lint on content, style guide, or custom rules change
   useEffect(() => {
@@ -95,16 +107,23 @@ const Index = () => {
     }, 3000);
   };
 
-  const handleAutoFix = () => {
-    // Get all issues with suggestions, sorted by line number (descending)
-    const fixableIssues = issues
-      .filter(issue => issue.suggestion)
-      .sort((a, b) => b.line - a.line);
-
+  const handleAutoFixClick = () => {
+    const fixableIssues = issues.filter(issue => issue.suggestion);
+    
     if (fixableIssues.length === 0) {
       toast.error("No auto-fixable issues found");
       return;
     }
+    
+    setAutoFixCount(fixableIssues.length);
+    setShowAutoFixDialog(true);
+  };
+
+  const handleAutoFixConfirm = () => {
+    // Get all issues with suggestions, sorted by line number (descending)
+    const fixableIssues = issues
+      .filter(issue => issue.suggestion)
+      .sort((a, b) => b.line - a.line);
 
     let updatedContent = content;
     const lines = updatedContent.split("\n");
@@ -118,6 +137,7 @@ const Index = () => {
 
     updatedContent = lines.join("\n");
     setContent(updatedContent);
+    setShowAutoFixDialog(false);
     toast.success(`Fixed ${fixableIssues.length} issue${fixableIssues.length > 1 ? 's' : ''}`);
   };
 
@@ -147,7 +167,7 @@ const Index = () => {
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={handleAutoFix}
+                onClick={handleAutoFixClick}
                 disabled={issues.filter(i => i.suggestion).length === 0}
                 className="flex-1 sm:flex-none"
               >
@@ -224,6 +244,21 @@ const Index = () => {
       </main>
 
       <Footer />
+
+      <AlertDialog open={showAutoFixDialog} onOpenChange={setShowAutoFixDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Apply Auto-fix?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will automatically fix {autoFixCount} issue{autoFixCount > 1 ? 's' : ''} in your document. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleAutoFixConfirm}>Apply Fixes</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
