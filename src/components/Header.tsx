@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { FileText, BookOpen, Moon, Sun } from "lucide-react";
+import { FileText, BookOpen, Moon, Sun, Linkedin, Twitter, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 
@@ -45,6 +45,36 @@ const Header = () => {
             <BookOpen className="h-3.5 w-3.5 md:h-4 md:w-4" />
             <span className="hidden sm:inline">Docs</span>
           </Link>
+
+          <span className="text-border hidden sm:inline">|</span>
+
+          <a
+            href="https://www.linkedin.com/in/joklinztech"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-primary transition-colors"
+            aria-label="LinkedIn Profile"
+          >
+            <Linkedin className="h-4 w-4 md:h-5 md:w-5" />
+          </a>
+          <a
+            href="https://twitter.com/Joklinztech"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-primary transition-colors"
+            aria-label="Twitter Profile"
+          >
+            <Twitter className="h-4 w-4 md:h-5 md:w-5" />
+          </a>
+          <a
+            href="https://github.com/wise4rmgod"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-primary transition-colors"
+            aria-label="GitHub Profile"
+          >
+            <Github className="h-4 w-4 md:h-5 md:w-5" />
+          </a>
 
           <Button variant="ghost" size="icon" onClick={toggleTheme} className="ml-2 md:ml-4 h-8 w-8 md:h-10 md:w-10">
             {theme === "light" ? <Moon className="h-4 w-4 md:h-5 md:w-5" /> : <Sun className="h-4 w-4 md:h-5 md:w-5" />}
