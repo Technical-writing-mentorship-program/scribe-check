@@ -11,7 +11,7 @@ import retextSimplify from 'retext-simplify';
 import retextReadability from 'retext-readability';
 import retextPassive from 'retext-passive';
 import { VFile } from 'vfile';
-import { LintIssue, StyleGuide } from '@/types/linting';
+import { LintIssue, StyleGuide, CustomRulesConfig, CustomRule } from '@/types/linting';
 
 // Map VFile message severity to our IssueLevel
 const mapSeverity = (fatal?: boolean | null, message?: string): 'error' | 'warning' | 'info' => {
@@ -134,9 +134,49 @@ const explainRule = (ruleId: string): string => {
   return explanations[ruleId] || explanations['default'];
 };
 
+// Apply custom rules to text
+const applyCustomRules = (text: string, rules: CustomRule[]): LintIssue[] => {
+  const issues: LintIssue[] = [];
+  const lines = text.split('\n');
+
+  rules.forEach((rule) => {
+    if (!rule.pattern) return;
+
+    lines.forEach((line, lineIndex) => {
+      try {
+        const regex = new RegExp(rule.pattern, 'gi');
+        let match;
+
+        while ((match = regex.exec(line)) !== null) {
+          issues.push({
+            id: `custom-${rule.name}-${lineIndex}-${match.index}`,
+            line: lineIndex + 1,
+            column: match.index + 1,
+            message: rule.message,
+            rule: `custom:${rule.name}`,
+            level: rule.level || 'warning',
+            suggestion: rule.suggestion,
+            explanation: `Custom rule: ${rule.name}`,
+          });
+        }
+      } catch (error) {
+        console.error(`Error in custom rule "${rule.name}":`, error);
+      }
+    });
+  });
+
+  return issues;
+};
+
 // Main linting function
-export const lintMarkdown = async (text: string, styleGuide: StyleGuide): Promise<LintIssue[]> => {
-  const processor = getProcessor(styleGuide);
+export const lintMarkdown = async (
+  text: string,
+  styleGuide: StyleGuide,
+  customConfig?: CustomRulesConfig
+): Promise<LintIssue[]> => {
+  // Use base style guide from custom config if provided
+  const effectiveStyleGuide = customConfig?.baseStyleGuide || styleGuide;
+  const processor = getProcessor(effectiveStyleGuide === 'custom' ? 'google' : effectiveStyleGuide);
   const vfile = new VFile({ value: text, path: 'document.md' });
 
   try {
@@ -164,5 +204,15 @@ export const lintMarkdown = async (text: string, styleGuide: StyleGuide): Promis
     };
   });
 
-  return issues;
+  // Apply custom rules if provided
+  if (customConfig?.rules) {
+    const customIssues = applyCustomRules(text, customConfig.rules);
+    issues.push(...customIssues);
+  }
+
+  // Sort issues by line, then column
+  return issues.sort((a, b) => {
+    if (a.line !== b.line) return a.line - b.line;
+    return a.column - b.column;
+  });
 };

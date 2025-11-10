@@ -18,3 +18,18 @@ export interface StyleGuideOption {
   label: string;
   description: string;
 }
+
+export interface CustomRule {
+  name: string;
+  pattern?: string;
+  message: string;
+  level?: IssueLevel;
+  suggestion?: string;
+  ignoreWords?: string[];
+  maxReadabilityAge?: number;
+}
+
+export interface CustomRulesConfig {
+  baseStyleGuide: Exclude<StyleGuide, "custom">;
+  rules: CustomRule[];
+}

@@ -33,7 +33,7 @@ const styleGuides: StyleGuideOption[] = [
   {
     value: "custom",
     label: "Custom Rules",
-    description: "Upload your own style guide configuration (coming soon)",
+    description: "Upload your own YAML/JSON configuration to extend any base style guide",
   },
 ];
 
@@ -56,7 +56,7 @@ const StyleGuideSelector = ({ value, onChange }: StyleGuideSelectorProps) => {
         </SelectTrigger>
         <SelectContent>
           {styleGuides.map((guide) => (
-            <SelectItem key={guide.value} value={guide.value} disabled={guide.value === "custom"}>
+            <SelectItem key={guide.value} value={guide.value}>
               <div className="flex items-center justify-between w-full">
                 <span>{guide.label}</span>
                 <TooltipProvider>

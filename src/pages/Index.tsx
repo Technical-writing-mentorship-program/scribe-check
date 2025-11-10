@@ -8,7 +8,8 @@ import MarkdownEditor from "@/components/editor/MarkdownEditor";
 import IssuesPanel from "@/components/editor/IssuesPanel";
 import PreviewPanel from "@/components/editor/PreviewPanel";
 import StyleGuideSelector from "@/components/editor/StyleGuideSelector";
-import { LintIssue, StyleGuide } from "@/types/linting";
+import CustomRulesUpload from "@/components/editor/CustomRulesUpload";
+import { LintIssue, StyleGuide, CustomRulesConfig } from "@/types/linting";
 import { lintMarkdown } from "@/utils/realLinter";
 
 const SAMPLE_TEXT = `# Getting Started with MarkdownLint
@@ -31,16 +32,17 @@ Please ensure that you follow the guidelines provided by your chosen style guide
 const Index = () => {
   const [content, setContent] = useState(SAMPLE_TEXT);
   const [styleGuide, setStyleGuide] = useState<StyleGuide>("google");
+  const [customConfig, setCustomConfig] = useState<CustomRulesConfig | undefined>(undefined);
   const [issues, setIssues] = useState<LintIssue[]>([]);
   const [activeTab, setActiveTab] = useState("issues");
 
-  // Lint on content or style guide change
+  // Lint on content, style guide, or custom rules change
   useEffect(() => {
     let isCancelled = false;
     
     const runLinting = async () => {
       if (content.trim()) {
-        const newIssues = await lintMarkdown(content, styleGuide);
+        const newIssues = await lintMarkdown(content, styleGuide, customConfig);
         if (!isCancelled) {
           setIssues(newIssues);
         }
@@ -54,7 +56,12 @@ const Index = () => {
     return () => {
       isCancelled = true;
     };
-  }, [content, styleGuide]);
+  }, [content, styleGuide, customConfig]);
+
+  const handleCustomRulesLoaded = (config: CustomRulesConfig) => {
+    setCustomConfig(config);
+    setStyleGuide("custom");
+  };
 
   const handleFileUpload = (file: File) => {
     const reader = new FileReader();
@@ -104,39 +111,49 @@ const Index = () => {
 
         {/* Editor Layout */}
         <div className="flex-1 container px-3 md:px-4 py-4 md:py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 h-full">
-            {/* Left: Editor */}
-            <div className="rounded-lg border border-editor-border overflow-hidden shadow-lg min-h-[400px] lg:min-h-0">
-              <MarkdownEditor
-                content={content}
-                onChange={setContent}
-                issues={issues}
-                onFileUpload={handleFileUpload}
+          <div className="space-y-4 md:space-y-6">
+            {/* Custom Rules Upload - Show when custom style guide is selected */}
+            {styleGuide === "custom" && (
+              <CustomRulesUpload 
+                onRulesLoaded={handleCustomRulesLoaded}
+                hasRules={!!customConfig}
               />
-            </div>
+            )}
 
-            {/* Right: Issues/Preview */}
-            <div className="rounded-lg border border-border overflow-hidden shadow-lg min-h-[400px] lg:min-h-0">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-                <TabsList className="w-full justify-start rounded-none border-b">
-                  <TabsTrigger value="issues" className="flex items-center space-x-1.5 md:space-x-2 text-xs md:text-sm">
-                    <FileText className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                    <span>Issues ({issues.length})</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="preview" className="flex items-center space-x-1.5 md:space-x-2 text-xs md:text-sm">
-                    <Eye className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                    <span>Preview</span>
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="issues" className="flex-1 m-0">
-                  <IssuesPanel issues={issues} />
-                </TabsContent>
-                
-                <TabsContent value="preview" className="flex-1 m-0 p-3 md:p-4">
-                  <PreviewPanel content={content} />
-                </TabsContent>
-              </Tabs>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 h-full">
+              {/* Left: Editor */}
+              <div className="rounded-lg border border-editor-border overflow-hidden shadow-lg min-h-[400px] lg:min-h-0">
+                <MarkdownEditor
+                  content={content}
+                  onChange={setContent}
+                  issues={issues}
+                  onFileUpload={handleFileUpload}
+                />
+              </div>
+
+              {/* Right: Issues/Preview */}
+              <div className="rounded-lg border border-border overflow-hidden shadow-lg min-h-[400px] lg:min-h-0">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+                  <TabsList className="w-full justify-start rounded-none border-b">
+                    <TabsTrigger value="issues" className="flex items-center space-x-1.5 md:space-x-2 text-xs md:text-sm">
+                      <FileText className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                      <span>Issues ({issues.length})</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="preview" className="flex items-center space-x-1.5 md:space-x-2 text-xs md:text-sm">
+                      <Eye className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                      <span>Preview</span>
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="issues" className="flex-1 m-0">
+                    <IssuesPanel issues={issues} />
+                  </TabsContent>
+                  
+                  <TabsContent value="preview" className="flex-1 m-0 p-3 md:p-4">
+                    <PreviewPanel content={content} />
+                  </TabsContent>
+                </Tabs>
+              </div>
             </div>
           </div>
         </div>
