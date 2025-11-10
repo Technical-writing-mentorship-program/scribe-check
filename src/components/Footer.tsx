@@ -1,4 +1,4 @@
-import { Heart } from "lucide-react";
+import { Heart, Globe } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -11,8 +11,9 @@ const Footer = () => {
               href="https://wisdom-portfolio.netlify.app/"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-foreground hover:text-primary transition-colors hover-scale"
+              className="font-semibold text-foreground hover:text-primary transition-colors hover-scale flex items-center gap-1.5"
             >
+              <Globe className="h-4 w-4" />
               Wisdom Nwokocha
             </a>
           </span>
