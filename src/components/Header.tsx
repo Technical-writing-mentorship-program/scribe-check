@@ -20,34 +20,34 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4">
-        <Link to="/" className="flex items-center space-x-2 transition-opacity hover:opacity-80">
-          <FileText className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold text-foreground">MarkdownLint</span>
+      <div className="container flex h-14 md:h-16 items-center justify-between px-3 md:px-4">
+        <Link to="/" className="flex items-center space-x-1.5 md:space-x-2 transition-opacity hover:opacity-80">
+          <FileText className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+          <span className="text-base md:text-xl font-bold text-foreground">MarkdownLint</span>
         </Link>
 
-        <nav className="flex items-center space-x-6">
+        <nav className="flex items-center space-x-3 md:space-x-6">
           <Link
             to="/"
-            className={`flex items-center space-x-2 text-sm font-medium transition-colors hover:text-primary ${
+            className={`flex items-center space-x-1 md:space-x-2 text-xs md:text-sm font-medium transition-colors hover:text-primary ${
               location.pathname === "/" ? "text-primary" : "text-muted-foreground"
             }`}
           >
-            <FileText className="h-4 w-4" />
-            <span>Editor</span>
+            <FileText className="h-3.5 w-3.5 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">Editor</span>
           </Link>
           <Link
             to="/docs"
-            className={`flex items-center space-x-2 text-sm font-medium transition-colors hover:text-primary ${
+            className={`flex items-center space-x-1 md:space-x-2 text-xs md:text-sm font-medium transition-colors hover:text-primary ${
               location.pathname === "/docs" ? "text-primary" : "text-muted-foreground"
             }`}
           >
-            <BookOpen className="h-4 w-4" />
-            <span>Docs</span>
+            <BookOpen className="h-3.5 w-3.5 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">Docs</span>
           </Link>
 
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="ml-4">
-            {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="ml-2 md:ml-4 h-8 w-8 md:h-10 md:w-10">
+            {theme === "light" ? <Moon className="h-4 w-4 md:h-5 md:w-5" /> : <Sun className="h-4 w-4 md:h-5 md:w-5" />}
           </Button>
         </nav>
       </div>

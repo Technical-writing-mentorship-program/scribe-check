@@ -86,27 +86,27 @@ const Index = () => {
       <main className="flex-1 flex flex-col">
         {/* Toolbar */}
         <div className="border-b border-border bg-card">
-          <div className="container flex items-center justify-between h-14 px-4">
+          <div className="container flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-3 sm:h-14 sm:py-0 px-3 md:px-4">
             <StyleGuideSelector value={styleGuide} onChange={setStyleGuide} />
             
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" onClick={() => setActiveTab("preview")}>
-                <Eye className="h-4 w-4 mr-2" />
-                Preview
+            <div className="flex items-center space-x-2 w-full sm:w-auto">
+              <Button variant="outline" size="sm" onClick={() => setActiveTab("preview")} className="flex-1 sm:flex-none">
+                <Eye className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Preview</span>
               </Button>
-              <Button variant="default" size="sm" onClick={handleDownload}>
-                <Download className="h-4 w-4 mr-2" />
-                Download
+              <Button variant="default" size="sm" onClick={handleDownload} className="flex-1 sm:flex-none">
+                <Download className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Download</span>
               </Button>
             </div>
           </div>
         </div>
 
         {/* Editor Layout */}
-        <div className="flex-1 container px-4 py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+        <div className="flex-1 container px-3 md:px-4 py-4 md:py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 h-full">
             {/* Left: Editor */}
-            <div className="rounded-lg border border-editor-border overflow-hidden shadow-lg">
+            <div className="rounded-lg border border-editor-border overflow-hidden shadow-lg min-h-[400px] lg:min-h-0">
               <MarkdownEditor
                 content={content}
                 onChange={setContent}
@@ -116,15 +116,15 @@ const Index = () => {
             </div>
 
             {/* Right: Issues/Preview */}
-            <div className="rounded-lg border border-border overflow-hidden shadow-lg">
+            <div className="rounded-lg border border-border overflow-hidden shadow-lg min-h-[400px] lg:min-h-0">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
                 <TabsList className="w-full justify-start rounded-none border-b">
-                  <TabsTrigger value="issues" className="flex items-center space-x-2">
-                    <FileText className="h-4 w-4" />
+                  <TabsTrigger value="issues" className="flex items-center space-x-1.5 md:space-x-2 text-xs md:text-sm">
+                    <FileText className="h-3.5 w-3.5 md:h-4 md:w-4" />
                     <span>Issues ({issues.length})</span>
                   </TabsTrigger>
-                  <TabsTrigger value="preview" className="flex items-center space-x-2">
-                    <Eye className="h-4 w-4" />
+                  <TabsTrigger value="preview" className="flex items-center space-x-1.5 md:space-x-2 text-xs md:text-sm">
+                    <Eye className="h-3.5 w-3.5 md:h-4 md:w-4" />
                     <span>Preview</span>
                   </TabsTrigger>
                 </TabsList>
@@ -133,7 +133,7 @@ const Index = () => {
                   <IssuesPanel issues={issues} />
                 </TabsContent>
                 
-                <TabsContent value="preview" className="flex-1 m-0 p-4">
+                <TabsContent value="preview" className="flex-1 m-0 p-3 md:p-4">
                   <PreviewPanel content={content} />
                 </TabsContent>
               </Tabs>

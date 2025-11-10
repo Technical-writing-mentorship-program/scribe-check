@@ -81,20 +81,21 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
   return (
     <TooltipProvider>
       <div className="flex flex-col h-full">
-        <div className="flex items-center justify-between p-4 border-b border-editor-border bg-editor-bg">
-        <div className="flex items-center gap-4">
-          <h2 className="text-sm font-semibold text-editor-fg">Markdown Editor</h2>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 p-3 md:p-4 border-b border-editor-border bg-editor-bg">
+        <div className="flex flex-wrap items-center gap-2 md:gap-4">
+          <h2 className="text-xs md:text-sm font-semibold text-editor-fg">Markdown Editor</h2>
           <span className={`text-xs ${isOverLimit ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>
             {wordCount} / {MAX_WORDS} words
           </span>
           <Popover>
             <PopoverTrigger asChild>
-              <button className="flex items-center gap-1.5 text-xs hover:opacity-80 transition-opacity">
-                <span className="text-muted-foreground">Readability:</span>
+              <button className="flex items-center gap-1 md:gap-1.5 text-xs hover:opacity-80 transition-opacity">
+                <span className="text-muted-foreground hidden sm:inline">Readability:</span>
+                <span className="text-muted-foreground sm:hidden">Read:</span>
                 <span className={`font-semibold ${readabilityInfo.color}`}>
                   {readabilityScore}
                 </span>
-                <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                <Info className="h-3 w-3 md:h-3.5 md:w-3.5 text-muted-foreground" />
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-72">
@@ -121,7 +122,7 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
             </PopoverContent>
           </Popover>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 w-full sm:w-auto">
           <input
             ref={fileInputRef}
             type="file"
@@ -133,10 +134,10 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
             variant="outline"
             size="sm"
             onClick={() => fileInputRef.current?.click()}
-            className="bg-secondary hover:bg-secondary/80"
+            className="bg-secondary hover:bg-secondary/80 flex-1 sm:flex-none text-xs"
           >
-            <Upload className="h-4 w-4 mr-2" />
-            Upload .md
+            <Upload className="h-3.5 w-3.5 md:h-4 md:w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Upload .md</span>
           </Button>
         </div>
       </div>
@@ -216,13 +217,13 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
             </div>
 
             {/* Actual textarea - on top, transparent bg */}
-            <div className="relative z-10 p-4">
+            <div className="relative z-10 p-3 md:p-4">
               <textarea
                 ref={textareaRef}
                 value={content}
                 onChange={(e) => handleContentChange(e.target.value)}
                 onScroll={handleScroll}
-                className="w-full min-h-[400px] bg-transparent text-editor-fg resize-none focus:outline-none leading-relaxed font-mono text-sm pl-10"
+                className="w-full min-h-[300px] md:min-h-[400px] bg-transparent text-editor-fg resize-none focus:outline-none leading-relaxed font-mono text-xs md:text-sm pl-8 md:pl-10"
                 placeholder="Paste your Markdown here or upload a file..."
                 spellCheck={false}
               />
