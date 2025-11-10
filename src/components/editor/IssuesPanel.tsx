@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { LintIssue, IssueLevel } from "@/types/linting";
-import { AlertCircle, AlertTriangle, Info, Filter } from "lucide-react";
+import { AlertCircle, AlertTriangle, Info, Filter, Wand2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,9 +14,10 @@ import { Card } from "@/components/ui/card";
 interface IssuesPanelProps {
   issues: LintIssue[];
   onIssueClick?: (issueId: string) => void;
+  onFixIssue?: (issueId: string) => void;
 }
 
-const IssuesPanel = ({ issues, onIssueClick }: IssuesPanelProps) => {
+const IssuesPanel = ({ issues, onIssueClick, onFixIssue }: IssuesPanelProps) => {
   const [filters, setFilters] = useState<Set<IssueLevel>>(new Set(["error", "warning", "info"]));
 
   const toggleFilter = (level: IssueLevel) => {
@@ -119,33 +120,53 @@ const IssuesPanel = ({ issues, onIssueClick }: IssuesPanelProps) => {
           filteredIssues.map((issue) => (
             <Card 
               key={issue.id} 
-              className="p-4 hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => onIssueClick?.(issue.id)}
+              className="p-4 hover:shadow-md transition-shadow"
             >
               <div className="flex items-start space-x-3">
-                {getIssueIcon(issue.level)}
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-card-foreground">{issue.message}</p>
-                    <Badge variant={getIssueBadgeVariant(issue.level)} className="ml-2">
-                      {issue.level}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                    <span>Line {issue.line}</span>
-                    <span>•</span>
-                    <span className="font-mono">{issue.rule}</span>
-                  </div>
-                  {issue.suggestion && (
-                    <div className="mt-2 p-2 bg-muted rounded-md">
-                      <p className="text-xs font-medium text-muted-foreground">Suggestion:</p>
-                      <p className="text-xs text-foreground mt-1">{issue.suggestion}</p>
+                <div 
+                  className="flex-1 cursor-pointer"
+                  onClick={() => onIssueClick?.(issue.id)}
+                >
+                  <div className="flex items-start space-x-3">
+                    {getIssueIcon(issue.level)}
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-card-foreground">{issue.message}</p>
+                        <Badge variant={getIssueBadgeVariant(issue.level)} className="ml-2">
+                          {issue.level}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                        <span>Line {issue.line}</span>
+                        <span>•</span>
+                        <span className="font-mono">{issue.rule}</span>
+                      </div>
+                      {issue.suggestion && (
+                        <div className="mt-2 p-2 bg-muted rounded-md">
+                          <p className="text-xs font-medium text-muted-foreground">Suggestion:</p>
+                          <p className="text-xs text-foreground mt-1">{issue.suggestion}</p>
+                        </div>
+                      )}
+                      {issue.explanation && (
+                        <p className="text-xs text-muted-foreground mt-1">{issue.explanation}</p>
+                      )}
                     </div>
-                  )}
-                  {issue.explanation && (
-                    <p className="text-xs text-muted-foreground mt-1">{issue.explanation}</p>
-                  )}
+                  </div>
                 </div>
+                {issue.suggestion && onFixIssue && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onFixIssue(issue.id);
+                    }}
+                    className="shrink-0"
+                  >
+                    <Wand2 className="h-3.5 w-3.5 mr-1.5" />
+                    Fix
+                  </Button>
+                )}
               </div>
             </Card>
           ))

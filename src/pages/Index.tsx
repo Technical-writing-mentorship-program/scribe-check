@@ -121,6 +121,18 @@ const Index = () => {
     toast.success(`Fixed ${fixableIssues.length} issue${fixableIssues.length > 1 ? 's' : ''}`);
   };
 
+  const handleFixIssue = (issueId: string) => {
+    const issue = issues.find(i => i.id === issueId);
+    if (!issue || !issue.suggestion) return;
+
+    const lines = content.split("\n");
+    if (issue.line > 0 && issue.line <= lines.length) {
+      lines[issue.line - 1] = issue.suggestion;
+      setContent(lines.join("\n"));
+      toast.success("Issue fixed");
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -194,7 +206,11 @@ const Index = () => {
                   </TabsList>
                   
                   <TabsContent value="issues" className="flex-1 m-0">
-                    <IssuesPanel issues={issues} onIssueClick={handleIssueClick} />
+                    <IssuesPanel 
+                      issues={issues} 
+                      onIssueClick={handleIssueClick}
+                      onFixIssue={handleFixIssue}
+                    />
                   </TabsContent>
                   
                   <TabsContent value="preview" className="flex-1 m-0 p-3 md:p-4">

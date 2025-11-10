@@ -230,7 +230,7 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload, highlightedIs
                       )}
                       <span className={`
                         ${isHighlighted 
-                          ? 'bg-primary/20 px-1 -mx-1 rounded' 
+                          ? 'bg-yellow-300/40 px-1 -mx-1 rounded' 
                           : 'invisible'
                         }
                         ${!isHighlighted ? 'invisible' : ''}
