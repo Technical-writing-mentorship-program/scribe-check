@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
-import { Download, Eye, FileText, Wand2 } from "lucide-react";
+import { Download, Eye, FileText, Wand2, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import jsPDF from "jspdf";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MarkdownEditor from "@/components/editor/MarkdownEditor";
@@ -100,6 +107,137 @@ const Index = () => {
     toast.success("File downloaded!");
   };
 
+  const handleExportJSON = () => {
+    const reportData = {
+      exportDate: new Date().toISOString(),
+      totalIssues: issues.length,
+      errorCount: issues.filter(i => i.level === "error").length,
+      warningCount: issues.filter(i => i.level === "warning").length,
+      infoCount: issues.filter(i => i.level === "info").length,
+      styleGuide,
+      issues: issues.map(issue => ({
+        line: issue.line,
+        level: issue.level,
+        rule: issue.rule,
+        message: issue.message,
+        suggestion: issue.suggestion || null,
+        explanation: issue.explanation || null,
+      })),
+    };
+
+    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `lint-report-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("JSON report downloaded!");
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    const lineHeight = 7;
+    let yPosition = 20;
+
+    // Title
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text("Markdown Lint Report", margin, yPosition);
+    yPosition += 15;
+
+    // Summary
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    const date = new Date().toLocaleDateString();
+    doc.text(`Date: ${date}`, margin, yPosition);
+    yPosition += lineHeight;
+    doc.text(`Style Guide: ${styleGuide}`, margin, yPosition);
+    yPosition += lineHeight;
+    doc.text(`Total Issues: ${issues.length}`, margin, yPosition);
+    yPosition += lineHeight;
+
+    const errorCount = issues.filter(i => i.level === "error").length;
+    const warningCount = issues.filter(i => i.level === "warning").length;
+    const infoCount = issues.filter(i => i.level === "info").length;
+
+    doc.text(`Errors: ${errorCount} | Warnings: ${warningCount} | Info: ${infoCount}`, margin, yPosition);
+    yPosition += 15;
+
+    // Issues
+    if (issues.length === 0) {
+      doc.text("No issues found. Great work!", margin, yPosition);
+    } else {
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Issues", margin, yPosition);
+      yPosition += 10;
+
+      issues.forEach((issue, index) => {
+        // Check if we need a new page
+        if (yPosition > 270) {
+          doc.addPage();
+          yPosition = 20;
+        }
+
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        
+        // Issue header
+        const levelColor: [number, number, number] = issue.level === "error" ? [220, 38, 38] : 
+                          issue.level === "warning" ? [234, 179, 8] : [59, 130, 246];
+        doc.setTextColor(levelColor[0], levelColor[1], levelColor[2]);
+        doc.text(`${index + 1}. Line ${issue.line} - ${issue.level.toUpperCase()}`, margin, yPosition);
+        yPosition += lineHeight;
+
+        doc.setTextColor(0, 0, 0);
+        doc.setFont("helvetica", "normal");
+        
+        // Rule
+        doc.setFontSize(9);
+        doc.text(`Rule: ${issue.rule}`, margin + 5, yPosition);
+        yPosition += lineHeight;
+
+        // Message
+        const messageLines = doc.splitTextToSize(issue.message, pageWidth - 2 * margin - 5);
+        messageLines.forEach((line: string) => {
+          if (yPosition > 270) {
+            doc.addPage();
+            yPosition = 20;
+          }
+          doc.text(line, margin + 5, yPosition);
+          yPosition += lineHeight;
+        });
+
+        // Suggestion
+        if (issue.suggestion) {
+          doc.setFont("helvetica", "italic");
+          doc.text("Suggestion:", margin + 5, yPosition);
+          yPosition += lineHeight;
+          const suggestionLines = doc.splitTextToSize(issue.suggestion, pageWidth - 2 * margin - 10);
+          suggestionLines.forEach((line: string) => {
+            if (yPosition > 270) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            doc.text(line, margin + 10, yPosition);
+            yPosition += lineHeight;
+          });
+          doc.setFont("helvetica", "normal");
+        }
+
+        yPosition += 5; // Space between issues
+      });
+    }
+
+    doc.save(`lint-report-${new Date().toISOString().split('T')[0]}.pdf`);
+    toast.success("PDF report downloaded!");
+  };
+
   const handleIssueClick = (issueId: string) => {
     setHighlightedIssue(issueId);
     setTimeout(() => {
@@ -179,6 +317,25 @@ const Index = () => {
                 <Eye className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Preview</span>
               </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                    <FileDown className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Export Report</span>
+                    <span className="sm:hidden">Export</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleExportJSON}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export as JSON
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportPDF}>
+                    <FileDown className="h-4 w-4 mr-2" />
+                    Export as PDF
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button variant="default" size="sm" onClick={handleDownload} className="flex-1 sm:flex-none">
                 <Download className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Download</span>
