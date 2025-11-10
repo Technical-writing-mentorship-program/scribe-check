@@ -117,6 +117,7 @@ const Index = () => {
               <CustomRulesUpload 
                 onRulesLoaded={handleCustomRulesLoaded}
                 hasRules={!!customConfig}
+                currentConfig={customConfig}
               />
             )}
 
