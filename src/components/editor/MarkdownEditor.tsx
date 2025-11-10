@@ -21,11 +21,12 @@ interface MarkdownEditorProps {
   onChange: (content: string) => void;
   issues: LintIssue[];
   onFileUpload: (file: File) => void;
+  highlightedIssueId?: string | null;
 }
 
 const MAX_WORDS = 1500;
 
-const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEditorProps) => {
+const MarkdownEditor = ({ content, onChange, issues, onFileUpload, highlightedIssueId }: MarkdownEditorProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
@@ -75,6 +76,20 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
   const getLineIssues = (lineNumber: number) => {
     return issues.filter((issue) => issue.line === lineNumber);
   };
+
+  const highlightedIssue = highlightedIssueId 
+    ? issues.find(issue => issue.id === highlightedIssueId)
+    : null;
+
+  // Scroll to highlighted issue
+  useEffect(() => {
+    if (highlightedIssue && textareaRef.current) {
+      const lines = content.split("\n");
+      const lineHeight = 24; // approximate line height
+      const scrollTarget = (highlightedIssue.line - 1) * lineHeight;
+      textareaRef.current.scrollTop = scrollTarget;
+    }
+  }, [highlightedIssue, content]);
 
   const lines = content.split("\n");
 
@@ -172,6 +187,8 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
                       : "text-issue-info";
                   }
                   
+                  const isHighlighted = lineIssues.some(issue => issue.id === highlightedIssueId);
+                  
                   return (
                     <div key={idx} className="relative">
                       {hasIssues && (
@@ -180,10 +197,14 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload }: MarkdownEdi
                             <span className={`
                               inline-flex items-center justify-center 
                               w-6 h-6 rounded-full mr-3
-                              bg-[hsl(var(--issue-highlight-border))]
+                              ${isHighlighted 
+                                ? 'bg-primary animate-pulse' 
+                                : 'bg-[hsl(var(--issue-highlight-border))]'
+                              }
                               text-xs font-bold
                               cursor-help
                               ${issueColor}
+                              transition-all duration-300
                             `}>
                               {idx + 1}
                             </span>

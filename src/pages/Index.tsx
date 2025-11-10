@@ -36,6 +36,7 @@ const Index = () => {
   const [customConfig, setCustomConfig] = useState<CustomRulesConfig | undefined>(undefined);
   const [issues, setIssues] = useState<LintIssue[]>([]);
   const [activeTab, setActiveTab] = useState("issues");
+  const [highlightedIssue, setHighlightedIssue] = useState<string | null>(null);
 
   // Lint on content, style guide, or custom rules change
   useEffect(() => {
@@ -87,6 +88,13 @@ const Index = () => {
     toast.success("File downloaded!");
   };
 
+  const handleIssueClick = (issueId: string) => {
+    setHighlightedIssue(issueId);
+    setTimeout(() => {
+      setHighlightedIssue(null);
+    }, 3000);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -130,6 +138,7 @@ const Index = () => {
                   onChange={setContent}
                   issues={issues}
                   onFileUpload={handleFileUpload}
+                  highlightedIssueId={highlightedIssue}
                 />
               </div>
 
@@ -148,7 +157,7 @@ const Index = () => {
                   </TabsList>
                   
                   <TabsContent value="issues" className="flex-1 m-0">
-                    <IssuesPanel issues={issues} />
+                    <IssuesPanel issues={issues} onIssueClick={handleIssueClick} />
                   </TabsContent>
                   
                   <TabsContent value="preview" className="flex-1 m-0 p-3 md:p-4">

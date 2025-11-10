@@ -13,9 +13,10 @@ import { Card } from "@/components/ui/card";
 
 interface IssuesPanelProps {
   issues: LintIssue[];
+  onIssueClick?: (issueId: string) => void;
 }
 
-const IssuesPanel = ({ issues }: IssuesPanelProps) => {
+const IssuesPanel = ({ issues, onIssueClick }: IssuesPanelProps) => {
   const [filters, setFilters] = useState<Set<IssueLevel>>(new Set(["error", "warning", "info"]));
 
   const toggleFilter = (level: IssueLevel) => {
@@ -116,7 +117,11 @@ const IssuesPanel = ({ issues }: IssuesPanelProps) => {
           </div>
         ) : (
           filteredIssues.map((issue) => (
-            <Card key={issue.id} className="p-4 hover:shadow-md transition-shadow">
+            <Card 
+              key={issue.id} 
+              className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => onIssueClick?.(issue.id)}
+            >
               <div className="flex items-start space-x-3">
                 {getIssueIcon(issue.level)}
                 <div className="flex-1 space-y-2">
