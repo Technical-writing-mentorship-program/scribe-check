@@ -228,9 +228,21 @@ const MarkdownEditor = ({ content, onChange, issues, onFileUpload, highlightedIs
                           </TooltipContent>
                         </Tooltip>
                       )}
-                      <span className="invisible">
+                      <span className={`
+                        ${isHighlighted 
+                          ? 'bg-primary/20 px-1 -mx-1 rounded' 
+                          : 'invisible'
+                        }
+                        ${!isHighlighted ? 'invisible' : ''}
+                        transition-all duration-300
+                      `}>
                         {line || ' '}
                       </span>
+                      {!hasIssues && (
+                        <span className="invisible">
+                          {line || ' '}
+                        </span>
+                      )}
                     </div>
                   );
                 })}

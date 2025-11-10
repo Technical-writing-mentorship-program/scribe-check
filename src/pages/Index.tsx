@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Download, Eye, FileText } from "lucide-react";
+import { Download, Eye, FileText, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -95,6 +95,32 @@ const Index = () => {
     }, 3000);
   };
 
+  const handleAutoFix = () => {
+    // Get all issues with suggestions, sorted by line number (descending)
+    const fixableIssues = issues
+      .filter(issue => issue.suggestion)
+      .sort((a, b) => b.line - a.line);
+
+    if (fixableIssues.length === 0) {
+      toast.error("No auto-fixable issues found");
+      return;
+    }
+
+    let updatedContent = content;
+    const lines = updatedContent.split("\n");
+
+    // Apply fixes from bottom to top to avoid line number shifts
+    fixableIssues.forEach(issue => {
+      if (issue.line > 0 && issue.line <= lines.length && issue.suggestion) {
+        lines[issue.line - 1] = issue.suggestion;
+      }
+    });
+
+    updatedContent = lines.join("\n");
+    setContent(updatedContent);
+    toast.success(`Fixed ${fixableIssues.length} issue${fixableIssues.length > 1 ? 's' : ''}`);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -106,6 +132,17 @@ const Index = () => {
             <StyleGuideSelector value={styleGuide} onChange={setStyleGuide} />
             
             <div className="flex items-center space-x-2 w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleAutoFix}
+                disabled={issues.filter(i => i.suggestion).length === 0}
+                className="flex-1 sm:flex-none"
+              >
+                <Wand2 className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Auto-fix ({issues.filter(i => i.suggestion).length})</span>
+                <span className="sm:hidden">Fix</span>
+              </Button>
               <Button variant="outline" size="sm" onClick={() => setActiveTab("preview")} className="flex-1 sm:flex-none">
                 <Eye className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Preview</span>
