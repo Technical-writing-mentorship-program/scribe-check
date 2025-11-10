@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { BookOpen, Code, FileText, Settings, Zap } from "lucide-react";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const Docs = () => {
   return (
@@ -172,6 +173,8 @@ tokens:
           </Card>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 };

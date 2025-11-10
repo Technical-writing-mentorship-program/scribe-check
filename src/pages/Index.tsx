@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import MarkdownEditor from "@/components/editor/MarkdownEditor";
 import IssuesPanel from "@/components/editor/IssuesPanel";
 import PreviewPanel from "@/components/editor/PreviewPanel";
@@ -90,7 +91,7 @@ const Index = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col min-h-0">
         {/* Toolbar */}
         <div className="border-b border-border bg-card">
           <div className="container flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-3 sm:h-14 sm:py-0 px-3 md:px-4">
@@ -159,6 +160,8 @@ const Index = () => {
           </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 };
