@@ -172,7 +172,8 @@ const applyCustomRules = (text: string, rules: CustomRule[]): LintIssue[] => {
 export const lintMarkdown = async (
   text: string,
   styleGuide: StyleGuide,
-  customConfig?: CustomRulesConfig
+  customConfig?: CustomRulesConfig,
+  englishVariant: string = 'us'
 ): Promise<LintIssue[]> => {
   // Use base style guide from custom config if provided
   const effectiveStyleGuide = customConfig?.baseStyleGuide || styleGuide;

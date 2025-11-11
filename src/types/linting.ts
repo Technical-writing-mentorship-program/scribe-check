@@ -13,6 +13,8 @@ export interface LintIssue {
 
 export type StyleGuide = "google" | "microsoft" | "redhat" | "custom";
 
+export type EnglishVariant = "us" | "uk" | "au" | "in";
+
 export interface StyleGuideOption {
   value: StyleGuide;
   label: string;

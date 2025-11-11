@@ -26,8 +26,9 @@ import MarkdownEditor from "@/components/editor/MarkdownEditor";
 import IssuesPanel from "@/components/editor/IssuesPanel";
 import PreviewPanel from "@/components/editor/PreviewPanel";
 import StyleGuideSelector from "@/components/editor/StyleGuideSelector";
+import EnglishVariantSelector from "@/components/editor/EnglishVariantSelector";
 import CustomRulesUpload from "@/components/editor/CustomRulesUpload";
-import { LintIssue, StyleGuide, CustomRulesConfig } from "@/types/linting";
+import { LintIssue, StyleGuide, CustomRulesConfig, EnglishVariant } from "@/types/linting";
 import { lintMarkdown } from "@/utils/realLinter";
 
 const SAMPLE_TEXT = `# Getting Started with MarkdownLint
@@ -50,6 +51,7 @@ Please ensure that you follow the guidelines provided by your chosen style guide
 const Index = () => {
   const [content, setContent] = useState(SAMPLE_TEXT);
   const [styleGuide, setStyleGuide] = useState<StyleGuide>("google");
+  const [englishVariant, setEnglishVariant] = useState<EnglishVariant>("us");
   const [customConfig, setCustomConfig] = useState<CustomRulesConfig | undefined>(undefined);
   const [issues, setIssues] = useState<LintIssue[]>([]);
   const [activeTab, setActiveTab] = useState("issues");
@@ -63,7 +65,7 @@ const Index = () => {
     
     const runLinting = async () => {
       if (content.trim()) {
-        const newIssues = await lintMarkdown(content, styleGuide, customConfig);
+        const newIssues = await lintMarkdown(content, styleGuide, customConfig, englishVariant);
         if (!isCancelled) {
           setIssues(newIssues);
         }
@@ -77,7 +79,7 @@ const Index = () => {
     return () => {
       isCancelled = true;
     };
-  }, [content, styleGuide, customConfig]);
+  }, [content, styleGuide, customConfig, englishVariant]);
 
   const handleCustomRulesLoaded = (config: CustomRulesConfig) => {
     setCustomConfig(config);
@@ -298,8 +300,11 @@ const Index = () => {
       <main className="flex-1 flex flex-col min-h-0">
         {/* Toolbar */}
         <div className="border-b border-border bg-card">
-          <div className="container flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-3 sm:h-14 sm:py-0 px-3 md:px-4">
-            <StyleGuideSelector value={styleGuide} onChange={setStyleGuide} />
+          <div className="container flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-3 sm:py-0 px-3 md:px-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <StyleGuideSelector value={styleGuide} onChange={setStyleGuide} />
+              <EnglishVariantSelector value={englishVariant} onChange={setEnglishVariant} />
+            </div>
             
             <div className="flex items-center space-x-2 w-full sm:w-auto">
               <Button 
