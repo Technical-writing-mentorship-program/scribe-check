@@ -271,7 +271,23 @@ const Index = () => {
     // Apply fixes from bottom to top to avoid line number shifts
     fixableIssues.forEach(issue => {
       if (issue.line > 0 && issue.line <= lines.length && issue.suggestion) {
-        lines[issue.line - 1] = issue.suggestion;
+        const currentLine = lines[issue.line - 1];
+        
+        // Try to extract the problematic word from the message
+        const wordMatch = issue.message.match(/['`"]([^'`"]+)['`"]/);
+        if (wordMatch) {
+          const problematicWord = wordMatch[1];
+          const firstSuggestion = issue.suggestion.split(',')[0].trim();
+          
+          // Replace the problematic word with the first suggestion
+          lines[issue.line - 1] = currentLine.replace(
+            new RegExp(`\\b${problematicWord}\\b`, 'gi'),
+            firstSuggestion
+          );
+        } else {
+          // Fallback: if we can't extract the word, use the full suggestion
+          lines[issue.line - 1] = issue.suggestion;
+        }
       }
     });
 
@@ -287,7 +303,26 @@ const Index = () => {
 
     const lines = content.split("\n");
     if (issue.line > 0 && issue.line <= lines.length) {
-      lines[issue.line - 1] = issue.suggestion;
+      const currentLine = lines[issue.line - 1];
+      
+      // Try to extract the problematic word from the message (e.g., "Unexpected 'regarding'" -> "regarding")
+      const wordMatch = issue.message.match(/['`"]([^'`"]+)['`"]/);
+      if (wordMatch) {
+        const problematicWord = wordMatch[1];
+        const firstSuggestion = issue.suggestion.split(',')[0].trim();
+        
+        // Replace the problematic word with the first suggestion
+        const fixedLine = currentLine.replace(
+          new RegExp(`\\b${problematicWord}\\b`, 'gi'),
+          firstSuggestion
+        );
+        
+        lines[issue.line - 1] = fixedLine;
+      } else {
+        // Fallback: if we can't extract the word, just replace the whole line
+        lines[issue.line - 1] = issue.suggestion;
+      }
+      
       setContent(lines.join("\n"));
       toast.success("Issue fixed");
     }
