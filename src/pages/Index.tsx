@@ -402,10 +402,6 @@ const Index = () => {
                 <span className="hidden sm:inline">Auto-fix ({issues.filter(i => i.suggestion).length})</span>
                 <span className="sm:hidden">Fix</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setActiveTab("preview")} className="flex-1 sm:flex-none">
-                <Eye className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Preview</span>
-              </Button>
             </div>
           </div>
         </div>
