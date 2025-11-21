@@ -377,6 +377,18 @@ const Index = () => {
                     <FolderOpen className="h-4 w-4 mr-2" />
                     Load Document
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDownload}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download as Markdown
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportJSON}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export Report as JSON
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportPDF}>
+                    <FileDown className="h-4 w-4 mr-2" />
+                    Export Report as PDF
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
               <Button 
@@ -393,29 +405,6 @@ const Index = () => {
               <Button variant="outline" size="sm" onClick={() => setActiveTab("preview")} className="flex-1 sm:flex-none">
                 <Eye className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Preview</span>
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
-                    <FileDown className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Export Report</span>
-                    <span className="sm:hidden">Export</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={handleExportJSON}>
-                    <FileText className="h-4 w-4 mr-2" />
-                    Export as JSON
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleExportPDF}>
-                    <FileDown className="h-4 w-4 mr-2" />
-                    Export as PDF
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button variant="default" size="sm" onClick={handleDownload} className="flex-1 sm:flex-none">
-                <Download className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Download</span>
               </Button>
             </div>
           </div>
