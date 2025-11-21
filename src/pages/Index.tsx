@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Download, Eye, FileText, Wand2, FileDown, Save, FolderOpen } from "lucide-react";
+import { Download, Eye, FileText, Wand2, FileDown, Save, FolderOpen, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -366,6 +367,7 @@ const Index = () => {
                     <Save className="h-4 w-4 sm:mr-2" />
                     <span className="hidden sm:inline">Documents</span>
                     <span className="sm:hidden">Docs</span>
+                    <ChevronDown className="h-3 w-3 ml-1 opacity-50" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="z-50 bg-popover">
@@ -377,10 +379,12 @@ const Index = () => {
                     <FolderOpen className="h-4 w-4 mr-2" />
                     Load Document
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleDownload}>
                     <Download className="h-4 w-4 mr-2" />
                     Download as Markdown
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleExportJSON}>
                     <FileText className="h-4 w-4 mr-2" />
                     Export Report as JSON
