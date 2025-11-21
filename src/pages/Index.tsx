@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Download, Eye, FileText, Wand2, FileDown } from "lucide-react";
+import { Download, Eye, FileText, Wand2, FileDown, Save, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -28,6 +28,8 @@ import PreviewPanel from "@/components/editor/PreviewPanel";
 import StyleGuideSelector from "@/components/editor/StyleGuideSelector";
 import EnglishVariantSelector from "@/components/editor/EnglishVariantSelector";
 import CustomRulesUpload from "@/components/editor/CustomRulesUpload";
+import { SaveDocumentDialog } from "@/components/editor/SaveDocumentDialog";
+import { SavedDocumentsDialog, SavedDocument, saveDocument } from "@/components/editor/SavedDocumentsDialog";
 import { LintIssue, StyleGuide, CustomRulesConfig, EnglishVariant } from "@/types/linting";
 import { lintMarkdown } from "@/utils/realLinter";
 
@@ -58,6 +60,8 @@ const Index = () => {
   const [highlightedIssue, setHighlightedIssue] = useState<string | null>(null);
   const [showAutoFixDialog, setShowAutoFixDialog] = useState(false);
   const [autoFixCount, setAutoFixCount] = useState(0);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showLoadDialog, setShowLoadDialog] = useState(false);
 
   // Lint on content, style guide, or custom rules change
   useEffect(() => {
@@ -328,6 +332,20 @@ const Index = () => {
     }
   };
 
+  const handleSaveDocument = (name: string) => {
+    saveDocument(name, content, styleGuide, englishVariant);
+  };
+
+  const handleLoadDocument = (doc: SavedDocument) => {
+    setContent(doc.content);
+    if (doc.styleGuide) {
+      setStyleGuide(doc.styleGuide as StyleGuide);
+    }
+    if (doc.englishVariant) {
+      setEnglishVariant(doc.englishVariant as EnglishVariant);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -342,6 +360,24 @@ const Index = () => {
             </div>
             
             <div className="flex items-center space-x-2 w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowSaveDialog(true)}
+                className="flex-1 sm:flex-none"
+              >
+                <Save className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Save</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowLoadDialog(true)}
+                className="flex-1 sm:flex-none"
+              >
+                <FolderOpen className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Load</span>
+              </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -456,6 +492,18 @@ const Index = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <SaveDocumentDialog
+        open={showSaveDialog}
+        onOpenChange={setShowSaveDialog}
+        onSave={handleSaveDocument}
+      />
+
+      <SavedDocumentsDialog
+        open={showLoadDialog}
+        onOpenChange={setShowLoadDialog}
+        onLoadDocument={handleLoadDocument}
+      />
     </div>
   );
 };
