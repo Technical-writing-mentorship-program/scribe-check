@@ -352,32 +352,33 @@ const Index = () => {
       
       <main className="flex-1 flex flex-col min-h-0">
         {/* Toolbar */}
-        <div className="border-b border-border bg-card">
-          <div className="container flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-3 sm:py-0 px-3 md:px-4">
+        <div className="border-b border-border bg-card mt-4">
+          <div className="container flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-3 sm:py-4 px-3 md:px-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <StyleGuideSelector value={styleGuide} onChange={setStyleGuide} />
               <EnglishVariantSelector value={englishVariant} onChange={setEnglishVariant} />
             </div>
             
             <div className="flex items-center space-x-2 w-full sm:w-auto">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setShowSaveDialog(true)}
-                className="flex-1 sm:flex-none"
-              >
-                <Save className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Save</span>
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setShowLoadDialog(true)}
-                className="flex-1 sm:flex-none"
-              >
-                <FolderOpen className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Load</span>
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                    <Save className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Documents</span>
+                    <span className="sm:hidden">Docs</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="z-50 bg-popover">
+                  <DropdownMenuItem onClick={() => setShowSaveDialog(true)}>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Document
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowLoadDialog(true)}>
+                    <FolderOpen className="h-4 w-4 mr-2" />
+                    Load Document
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button 
                 variant="outline" 
                 size="sm" 
